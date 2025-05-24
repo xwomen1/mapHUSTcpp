@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pathfinding Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+   html, body, #map {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+    #controls {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="controls">
+    <div>
+      From:
+      <select id="from"></select>
+      To:
+      <select id="to"></select>
+      <button onclick="findPath()">Tìm đường</button>
+    </div>
+    <div style="margin-top:10px;">
+      <label>Vị trí hiện tại:</label>
+      <input id="lat" placeholder="Latitude" size="10" />
+      <input id="lng" placeholder="Longitude" size="10" />
+      <button onclick="suggestParking()">Gợi ý nhà xe gần nhất</button>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+  const map = L.map('map').setView([21.0045, 105.8456], 16);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const points = {
+    "Nha xe D9": [21.004061,105.844573],
+    "Nha xe D3-5": [21.004972,105.845431],
+    "Nha xe C7": [21.005054, 105.844911],
+    "Nha xe C5": [21.005863, 105.844629],
+    "Nha xe D4-6": [21.004592,105.842322],
+    "Nha xe B1": [21.005002,105.846058],
+    "Nha xe TC": [21.002553,105.847055],
+    "Nha xe B13": [21.006460,105.847312],
+    "Nha xe B6": [21.006319,105.846545],
+  };
+
+  const fromSelect = document.getElementById('from');
+  const toSelect = document.getElementById('to');
+  let routeLine;
+  let currentLocationMarker; // lưu marker vị trí hiện tại
+
+  for (let id in points) {
+    fromSelect.add(new Option(id, id));
+    toSelect.add(new Option(id, id));
+    L.marker(points[id]).addTo(map).bindPopup(id);
+  }
+
+  async function findPath() {
+    const from = fromSelect.value;
+    const to = toSelect.value;
+    if (!from || !to || from === to) return;
+
+    const response = await fetch(`http://localhost:8080/path?from=${from}&to=${to}`);
+    const path = await response.json();
+    drawRoute(path, 'blue');
+  }
+
+  async function suggestParking() {
+    const lat = parseFloat(document.getElementById('lat').value);
+    const lng = parseFloat(document.getElementById('lng').value);
+    if (isNaN(lat) || isNaN(lng)) {
+      alert("Nhập vị trí hợp lệ");
+      return;
+    }
+
+    const response = await fetch('http://localhost:8080/nearest', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ lat, lng })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      alert(result.error || "Không tìm thấy nhà xe khả dụng");
+      return;
+    }
+
+    alert("Gợi ý: " + result.parkingID);
+
+    drawRoute(result.path, 'green');
+
+    // Xóa marker vị trí hiện tại cũ nếu có
+    if (currentLocationMarker) {
+      map.removeLayer(currentLocationMarker);
+    }
+
+    // Thêm marker vị trí hiện tại mới
+    currentLocationMarker = L.marker([lat, lng], {title: "Bạn đang ở đây"})
+      .addTo(map)
+      .bindPopup("Vị trí hiện tại")
+      .openPopup();
+  }
+
+  function drawRoute(path, color) {
+    if (routeLine) map.removeLayer(routeLine);
+
+    routeLine = L.polyline(path.map(p => [p.lat, p.lng]), {
+      color: color,
+      weight: 5
+    }).addTo(map);
+
+     if (currentLocation && path.length > 0) {
+    const firstPoint = [path[0].lat, path[0].lng];
+    const currentPoint = [currentLocation.lat, currentLocation.lng];
+
+    L.polyline([currentPoint, firstPoint], {
+      color: 'green',   // hoặc màu bạn thích
+      weight: 3,
+      dashArray: '5, 10' // đường nét đứt để phân biệt
+    }).addTo(map);
+  }
+
+    map.fitBounds(routeLine.getBounds());
+  }
+  </script>
+</body>
+</html>
