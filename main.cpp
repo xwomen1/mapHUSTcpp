@@ -11,8 +11,6 @@
 #include <fstream>
 #include"httplib.h"
 #include "json.hpp" 
-
-
 // Define M_PI if not defined
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
