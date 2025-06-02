@@ -9,8 +9,8 @@
 #include <memory>
 #include <sstream>
 #include <fstream>
-#include <httplib.h>
-#include <nlohmann/json.hpp>
+#include"httplib.h"
+#include "json.hpp" 
 
 
 // Define M_PI if not defined
@@ -282,6 +282,7 @@ std::string FindNearestAvailableParking(const std::string& fromID) {
 }
 
 int main() {
+    std::cout << "Starting server..." << std::endl;
     httplib::Server server;
 
     server.Get("/path", [](const httplib::Request& req, httplib::Response& res) {
@@ -346,7 +347,9 @@ int main() {
             
             json response = {
                 {"parkingID", nearestParkingID},
-                {"path", coordinates}
+                {"path", coordinates},
+                {"status", std::to_string(points[nearestParkingID].Occupied) + "/" + std::to_string(points[nearestParkingID].Capacity) },
+               
             };
             res.set_content(response.dump(), "application/json");
         } catch (const std::exception& e) {
@@ -371,6 +374,7 @@ int main() {
 
     std::cout << "Server starting on port 8080..." << std::endl;
     server.listen("0.0.0.0", 8080);
+    std::cout <<"End main" << std::endl;;
 
     return 0;
 }
