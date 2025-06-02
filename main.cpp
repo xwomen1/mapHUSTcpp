@@ -41,7 +41,6 @@ struct Coordinate {
     Coordinate() : lat(0.0), lng(0.0) {}
     Coordinate(double lat, double lng) : lat(lat), lng(lng) {}
 };
-
 // Convert Coordinate to JSON
 void to_json(json& j, const Coordinate& c) {
     j = json{{"lat", c.lat}, {"lng", c.lng}};
@@ -52,7 +51,28 @@ void from_json(const json& j, Coordinate& c) {
     j.at("lat").get_to(c.lat);
     j.at("lng").get_to(c.lng);
 }
+struct Location {
+    double Lat;
+    double Lng;
+    
+    Location() : Lat(0.0), Lng(0.0) {}
+    Location(double lat, double lng) : Lat(lat), Lng(lng) {}
+};
 
+// Convert JSON to Location
+void from_json(const json& j, Location& l) {
+    j.at("lat").get_to(l.Lat);
+    j.at("lng").get_to(l.Lng);
+}
+
+
+struct Edge {
+    std::string To;
+    int Weight;
+    
+    Edge(const std::string& to, int weight) : To(to), Weight(weight) {}
+};
+using Graph = std::unordered_map<std::string, std::vector<Edge>>;
 std::unordered_map<std::string, Point> points = {
     {"Nha xe D9", Point("Nha xe D9", 21.004061, 105.844573, 300, 300)},
     {"Nha xe D3-5", Point("Nha xe D3-5", 21.004972, 105.845431, 500, 0)},
@@ -79,14 +99,6 @@ std::unordered_map<std::string, Point> points = {
     {"Intersection quaydauTC", Point("Intersection quaydauTC", 21.001862, 105.846331, 0, 0)}
 };
 
-struct Edge {
-    std::string To;
-    int Weight;
-    
-    Edge(const std::string& to, int weight) : To(to), Weight(weight) {}
-};
-
-using Graph = std::unordered_map<std::string, std::vector<Edge>>;
 
 Graph graph = {
     // Trục chính
@@ -112,6 +124,22 @@ Graph graph = {
     {"Nha xe TC", {Edge("Intersection quaydauTC", 2)}},
     {"Nha xe B13", {Edge("Intersection B13TC", 6)}}
 };
+std::string FindClosestNodeFromLocation(const Location& loc) {
+    double minDist = std::numeric_limits<double>::max();
+    std::string closest = "";
+    
+    for (const auto& p : points) {
+        // Chỉ chọn điểm có trong đồ thị (có thể lọc qua graph[id])
+        if (graph.find(p.first) != graph.end()) {
+            double dist = Haversine(loc.Lat, loc.Lng, p.second.Lat, p.second.Lng);
+            if (dist < minDist) {
+                minDist = dist;
+                closest = p.first;
+            }
+        }
+    }
+    return closest;
+}
 
 // Dijkstra
 struct Item {
@@ -200,19 +228,6 @@ void updateOccupiedHandler(const httplib::Request& req, httplib::Response& res) 
     }
 }
 
-struct Location {
-    double Lat;
-    double Lng;
-    
-    Location() : Lat(0.0), Lng(0.0) {}
-    Location(double lat, double lng) : Lat(lat), Lng(lng) {}
-};
-
-// Convert JSON to Location
-void from_json(const json& j, Location& l) {
-    j.at("lat").get_to(l.Lat);
-    j.at("lng").get_to(l.Lng);
-}
 
 double Haversine(double lat1, double lon1, double lat2, double lon2) {
     const double R = 6371e3; // bán kính Trái đất (m)
@@ -227,23 +242,6 @@ double Haversine(double lat1, double lon1, double lat2, double lon2) {
     double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1-a));
 
     return R * c; // khoảng cách (mét)
-}
-
-std::string FindClosestNodeFromLocation(const Location& loc) {
-    double minDist = std::numeric_limits<double>::max();
-    std::string closest = "";
-    
-    for (const auto& p : points) {
-        // Chỉ chọn điểm có trong đồ thị (có thể lọc qua graph[id])
-        if (graph.find(p.first) != graph.end()) {
-            double dist = Haversine(loc.Lat, loc.Lng, p.second.Lat, p.second.Lng);
-            if (dist < minDist) {
-                minDist = dist;
-                closest = p.first;
-            }
-        }
-    }
-    return closest;
 }
 
 std::pair<std::string, double> FindNearestPoint(const Location& current) {
