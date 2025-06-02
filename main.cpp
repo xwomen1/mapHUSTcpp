@@ -33,7 +33,13 @@ struct Point {
     Point(const std::string& name, double lat, double lng, int capacity, int occupied)
         : Name(name), Lat(lat), Lng(lng), Capacity(capacity), Occupied(occupied) {}
 };
-
+struct Location {
+    double Lat;
+    double Lng;
+    
+    Location() : Lat(0.0), Lng(0.0) {}
+    Location(double lat, double lng) : Lat(lat), Lng(lng) {}
+};
 struct Coordinate {
     double lat;
     double lng;
@@ -51,15 +57,6 @@ void from_json(const json& j, Coordinate& c) {
     j.at("lat").get_to(c.lat);
     j.at("lng").get_to(c.lng);
 }
-struct Location {
-    double Lat;
-    double Lng;
-    
-    Location() : Lat(0.0), Lng(0.0) {}
-    Location(double lat, double lng) : Lat(lat), Lng(lng) {}
-};
-
-// Convert JSON to Location
 void from_json(const json& j, Location& l) {
     j.at("lat").get_to(l.Lat);
     j.at("lng").get_to(l.Lng);
@@ -188,7 +185,6 @@ std::pair<std::vector<std::string>, int> Dijkstra(const Graph& graph, const std:
             }
         }
     }
-
     std::vector<std::string> path;
     std::string u = end;
     while (!u.empty()) {
@@ -206,7 +202,6 @@ std::pair<std::vector<std::string>, int> Dijkstra(const Graph& graph, const std:
     
     return std::make_pair(path, dist[end]);
 }
-
 void updateOccupiedHandler(const httplib::Request& req, httplib::Response& res) {
     try {
         json j = json::parse(req.body);
@@ -227,8 +222,6 @@ void updateOccupiedHandler(const httplib::Request& req, httplib::Response& res) 
         res.set_content("invalid request", "text/plain");
     }
 }
-
-
 double Haversine(double lat1, double lon1, double lat2, double lon2) {
     const double R = 6371e3; // bán kính Trái đất (m)
     double φ1 = lat1 * M_PI / 180;
@@ -243,7 +236,6 @@ double Haversine(double lat1, double lon1, double lat2, double lon2) {
 
     return R * c; // khoảng cách (mét)
 }
-
 std::pair<std::string, double> FindNearestPoint(const Location& current) {
     double minDist = std::numeric_limits<double>::max();
     std::string nearest = "";
