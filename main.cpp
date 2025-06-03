@@ -42,6 +42,10 @@ void to_json(json& j, const Coordinate& c) {
 }
 
 // Convert JSON to Coordinate
+void from_json(const json& j, Coordinate& c) {
+    j.at("lat").get_to(c.lat);
+    j.at("lng").get_to(c.lng);
+}
 struct Location {
     double Lat;
     double Lng;
@@ -49,11 +53,6 @@ struct Location {
     Location() : Lat(0.0), Lng(0.0) {}
     Location(double lat, double lng) : Lat(lat), Lng(lng) {}
 };
-void from_json(const json& j, Coordinate& c) {
-    j.at("lat").get_to(c.lat);
-    j.at("lng").get_to(c.lng);
-}
-
 
 // Convert JSON to Location
 void from_json(const json& j, Location& l) {
