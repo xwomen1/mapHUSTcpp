@@ -48,7 +48,7 @@ Sau khi chạy, server hoạt động tại `http://localhost:8080`
 
 ---
 
-## 🌐 API Endpoint
+##  API Endpoint
 
 ### `GET /path?from={id1}&to={id2}`
 
