@@ -135,7 +135,26 @@ std::string FindClosestNodeFromLocation(const Location& loc) {
     }
     return closest;
 }
+void updateOccupiedHandler(const httplib::Request& req, httplib::Response& res) {
+    try {
+        json j = json::parse(req.body);
+        std::string id = j["id"];
+        int occupied = j["occupied"];
 
+        auto it = points.find(id);
+        if (it != points.end()) {
+            it->second.Occupied = occupied;
+            res.status = 200;
+            res.set_content("Updated", "text/plain");
+        } else {
+            res.status = 404;
+            res.set_content("Point not found", "text/plain");
+        }
+    } catch (const std::exception& e) {
+        res.status = 400;
+        res.set_content("invalid request", "text/plain");
+    }
+}
 // Dijkstra
 struct Item {
     std::string Node;
@@ -201,29 +220,6 @@ std::pair<std::vector<std::string>, int> Dijkstra(const Graph& graph, const std:
     
     return std::make_pair(path, dist[end]);
 }
-
-void updateOccupiedHandler(const httplib::Request& req, httplib::Response& res) {
-    try {
-        json j = json::parse(req.body);
-        std::string id = j["id"];
-        int occupied = j["occupied"];
-
-        auto it = points.find(id);
-        if (it != points.end()) {
-            it->second.Occupied = occupied;
-            res.status = 200;
-            res.set_content("Updated", "text/plain");
-        } else {
-            res.status = 404;
-            res.set_content("Point not found", "text/plain");
-        }
-    } catch (const std::exception& e) {
-        res.status = 400;
-        res.set_content("invalid request", "text/plain");
-    }
-}
-
-
 double Haversine(double lat1, double lon1, double lat2, double lon2) {
     const double R = 6371e3; // bán kính Trái đất (m)
     double φ1 = lat1 * M_PI / 180;
