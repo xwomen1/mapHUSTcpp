@@ -131,6 +131,6 @@ Gửi vị trí hiện tại để tìm đường đến nhà xe gần nhất c�
 
 //Thông tin liên hệ
 
-Tác giả: Cao Thùy Linh
+Tác giả: Đỗ Thùy Linh
 Hoàng Trọng Lâm
 Nguyễn Trung Kiên
