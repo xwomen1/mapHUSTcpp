@@ -48,9 +48,9 @@ Sau khi chạy, server hoạt động tại `http://localhost:8080`
 
 ---
 
-## 🌐 API Endpoint
+##  API Endpoint
 
-### `GET /path?from={id1}&to={id2}`
+# `GET /path?from={id1}&to={id2}`
 
 Tìm đường đi ngắn nhất từ điểm `id1` đến `id2`.
 
@@ -105,7 +105,6 @@ Gửi vị trí hiện tại để tìm đường đến nhà xe gần nhất c�
 ```
 
 ---
-
 //Kỹ thuật sử dụng
 
 - **Đồ thị:** Mỗi nút là một địa điểm, mỗi cạnh có trọng số là số bước đi/thời gian ước lượng.
@@ -131,6 +130,6 @@ Gửi vị trí hiện tại để tìm đường đến nhà xe gần nhất c�
 
 //Thông tin liên hệ
 
-Tác giả: Cao Thùy Linh
-Hoàng Trọng Lâm
-Nguyễn Trung Kiên
+Tác giả: Đỗ Thùy Linh
+         Hoàng Trọng Lâm
+         Nguyễn Trung Kiên
