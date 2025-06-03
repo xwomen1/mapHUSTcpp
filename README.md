@@ -1,8 +1,6 @@
 Tìm kiếm đường đi trên bản đồ hust
 Đây là một ứng dụng server viết bằng C++ sử dụng thư viện `httplib` để triển khai API tìm đường đi ngắn nhất và tìm nhà xe gần nhất còn chỗ trống. Dữ liệu mô hình được xây dựng dựa trên cấu trúc đồ thị (graph) đại diện cho bản đồ khuôn viên có các điểm giao và nhà xe.
-
 ---
-
 //Chức năng chính
 
 - Tìm đường đi ngắn nhất giữa hai điểm trong đồ thị (Dijkstra).
@@ -48,7 +46,7 @@ Sau khi chạy, server hoạt động tại `http://localhost:8080`
 
 ---
 
-## 🌐 API Endpoint
+#API Endpoint
 
 ### `GET /path?from={id1}&to={id2}`
 
@@ -121,16 +119,10 @@ Gửi vị trí hiện tại để tìm đường đến nhà xe gần nhất c�
 ![image](https://github.com/user-attachments/assets/5bc1ca91-e81f-4ac6-86dc-553ee389947f)
 
 //Mục tiêu trong tương lai
-
 - Thêm tính năng tìm nhiều nhà xe gần nhất.
 - Tích hợp dữ liệu thực tế (API GPS).
 - Giao diện hiển thị đường đi trực quan hơn.
 - Thêm caching để giảm tính toán lặp.
-
----
-
-//Thông tin liên hệ
-
-Tác giả: Cao Thùy Linh
+Tác giả: Đỗ Thùy Linh
 Hoàng Trọng Lâm
 Nguyễn Trung Kiên
