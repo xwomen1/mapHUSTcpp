@@ -29,37 +29,23 @@ struct Point {
         : Name(name), Lat(lat), Lng(lng), Capacity(capacity), Occupied(occupied) {}
 };
 
-struct Coordinate {
+struct Location {
     double lat;
     double lng;
     
-    Coordinate() : lat(0.0), lng(0.0) {}
-    Coordinate(double lat, double lng) : lat(lat), lng(lng) {}
+    Location() : lat(0.0), lng(0.0) {}
+    location(double lat, double lng) : lat(lat), lng(lng) {}
 };
-// Convert Coordinate to JSON
-void to_json(json& j, const Coordinate& c) {
+// Converte Location to JSON
+void to_json(json& j, const Location& c) {
     j = json{{"lat", c.lat}, {"lng", c.lng}};
 }
 
-// Convert JSON to Coordinate
-void from_json(const json& j, Coordinate& c) {
+// Convert JSON to Location
+void from_json(const json& j, Location& c) {
     j.at("lat").get_to(c.lat);
     j.at("lng").get_to(c.lng);
 }
-struct Location {
-    double Lat;
-    double Lng;
-    
-    Location() : Lat(0.0), Lng(0.0) {}
-    Location(double lat, double lng) : Lat(lat), Lng(lng) {}
-};
-
-// Convert JSON to Location
-void from_json(const json& j, Location& l) {
-    j.at("lat").get_to(l.Lat);
-    j.at("lng").get_to(l.Lng);
-}
-
 
 struct Edge {
     std::string To;
@@ -285,16 +271,16 @@ int main() {
         auto result = Dijkstra(graph, from, to);
         std::vector<std::string> path = result.first;
         
-        std::vector<Coordinate> coordinates;
+        std::vector<Location> Locations;
         for (const std::string& id : path) {
             auto it = points.find(id);
             if (it != points.end()) {
                 const Point& p = it->second;
-                coordinates.push_back(Coordinate(p.Lat, p.Lng));
+                Locations.push_back(Location(p.Lat, p.Lng));
             }
         }
         
-        json j = coordinates;
+        json j = Locations;
         res.set_content(j.dump(), "application/json");
     });
 
@@ -329,18 +315,18 @@ int main() {
             auto pathResult = Dijkstra(graph, nearestPointID, nearestParkingID);
             std::vector<std::string> path = pathResult.first;
 
-            std::vector<Coordinate> coordinates;
+            std::vector<Location> Locations;
             for (const std::string& id : path) {
                 auto it = points.find(id);
                 if (it != points.end()) {
                     const Point& p = it->second;
-                    coordinates.push_back(Coordinate(p.Lat, p.Lng));
+                    Locations.push_back(Location(p.Lat, p.Lng));
                 }
             }
             
             json response = {
                 {"parkingID", nearestParkingID},
-                {"path", coordinates},
+                {"path", Locations},
                 {"status", std::to_string(points[nearestParkingID].Occupied) + "/" + std::to_string(points[nearestParkingID].Capacity) },
                
             };
