@@ -34,7 +34,7 @@ struct Location {
     double lng;
     
     Location() : lat(0.0), lng(0.0) {}
-    location(double lat, double lng) : lat(lat), lng(lng) {}
+    Location(double lat, double lng) : lat(lat), lng(lng) {}
 };
 // Converte Location to JSON
 void to_json(json& j, const Location& c) {
@@ -105,22 +105,8 @@ Graph graph = {
     {"Nha xe TC", {Edge("Intersection quaydauTC", 2)}},
     {"Nha xe B13", {Edge("Intersection B13TC", 6)}}
 };
-std::string FindClosestNodeFromLocation(const Location& loc) {
-    double minDist = std::numeric_limits<double>::max();
-    std::string closest = "";
-    
-    for (const auto& p : points) {
-        // Chỉ chọn điểm có trong đồ thị (có thể lọc qua graph[id])
-        if (graph.find(p.first) != graph.end()) {
-            double dist = Haversine(loc.Lat, loc.Lng, p.second.Lat, p.second.Lng);
-            if (dist < minDist) {
-                minDist = dist;
-                closest = p.first;
-            }
-        }
-    }
-    return closest;
-}
+
+
 
 // Dijkstra
 struct Item {
@@ -212,14 +198,14 @@ void updateOccupiedHandler(const httplib::Request& req, httplib::Response& res) 
 
 double Haversine(double lat1, double lon1, double lat2, double lon2) {
     const double R = 6371e3; // bán kính Trái đất (m)
-    double φ1 = lat1 * M_PI / 180;
-    double φ2 = lat2 * M_PI / 180;
-    double Δφ = (lat2 - lat1) * M_PI / 180;
-    double Δλ = (lon2 - lon1) * M_PI / 180;
+    double phi1 = lat1 * M_PI / 180;
+    double phi2 = lat2 * M_PI / 180;
+    double deltaphi = (lat2 - lat1) * M_PI / 180;
+    double deltalamda = (lon2 - lon1) * M_PI / 180;
 
-    double a = std::sin(Δφ/2) * std::sin(Δφ/2) +
-               std::cos(φ1) * std::cos(φ2) *
-               std::sin(Δλ/2) * std::sin(Δλ/2);
+    double a = std::sin(deltaphi/2) * std::sin(deltaphi/2) +
+               std::cos(phi1) * std::cos(phi2) *
+               std::sin(deltalamda/2) * std::sin(deltalamda/2);
     double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1-a));
 
     return R * c; // khoảng cách (mét)
@@ -230,7 +216,7 @@ std::pair<std::string, double> FindNearestPoint(const Location& current) {
     std::string nearest = "";
 
     for (const auto& p : points) {
-        double dist = Haversine(current.Lat, current.Lng, p.second.Lat, p.second.Lng);
+        double dist = Haversine(current.lat, current.lng, p.second.Lat, p.second.Lng);
         if (dist < minDist) {
             minDist = dist;
             nearest = p.first;
@@ -258,6 +244,23 @@ std::string FindNearestAvailableParking(const std::string& fromID) {
         }
     }
     return nearest;
+}
+
+std::string FindClosestNodeFromLocation(const Location& loc) {
+    double minDist = std::numeric_limits<double>::max();
+    std::string closest = "";
+    
+    for (const auto& p : points) {
+        // Chỉ chọn điểm có trong đồ thị (có thể lọc qua graph[id])
+        if (graph.find(p.first) != graph.end()) {
+            double dist = Haversine(loc.lat, loc.lng, p.second.Lat, p.second.Lng);
+            if (dist < minDist) {
+                minDist = dist;
+                closest = p.first;
+            }
+        }
+    }
+    return closest;
 }
 
 int main() {
